@@ -1,0 +1,9 @@
+# to test it you need a worklet.pcm file.
+
+This file needs to fit the webaudio format :
+
+```
+ The buffer contains data in the following format: non-interleaved IEEE754 32-bit linear PCM with a nominal range between -1 and +1, that is, 32bits floating point buffer, with each samples between -1.0 and 1.0. If the AudioBuffer has multiple channels, they are stored in separate buffer.
+```
+
+The WebAudio graph (tested on a tot chrome build on macos), shows the AudioBufferSource is connected the way it should be.
