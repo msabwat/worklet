@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<meta charset="utf-8"/>
+<html>
+
+<body>
+<h2>Audio Worklet POC</h2>
+<button id='btn_ctx'>start</button>
+<input type="file" onchange="loadinput(event)">
+
+<script>
+    var context;
+    var pcm_buffer_cnt = 0;
+    var input;
+    function loadinput(event) {
+        input = event.target;
+    }
+    async function readFile(file) {
+        let result =  await new Promise((resolve) => {
+            let reader = new FileReader();
+            reader.onload = (e) => resolve(reader.result);
+            reader.readAsArrayBuffer(file);
+        });
+        return result;
+    }
+    document.getElementById('btn_ctx').addEventListener('click', () => {
+        context = new AudioContext();
+        readFile(input.files[0]).then((pcm_buffer) => {
+            context.audioWorklet.addModule('worklet-processor.js').then( () => {
+                var pcm_view = new Float32Array(pcm_buffer);
+                const wp = new AudioWorkletNode(context, 'worklet-processor');
+                const buffer = [];
+                const source = [];
+                const duration = 42;
+                const div = 20;
+                var step = 1/div;
+                var cnt = 0;
+                    
+                for (var x = 0; x < duration * div; x++) {
+                    buffer[x] = context.createBuffer(1, context.sampleRate/div, context.sampleRate);
+                    var nowBuffering = buffer[x].getChannelData(0);
+                    for (var i = 0; i < buffer[x].length; i++){
+                        nowBuffering[i] = pcm_view[pcm_buffer_cnt++];
+                    }
+                    source[x] = context.createBufferSource();
+                    source[x].buffer = buffer[x];
+                    source[x].connect(wp).connect(context.destination);
+                    source[x].start(cnt, 0, step);
+                    cnt = cnt + step;
+                }
+                // source[x].connect(wp).connect(context.destination);
+                // source[x].start(cnt, 0, 1/div);
+                // source[0].start();
+            });
+        });
+    });
+</script>
+</body>
+</html>
+
+<!--
+<script>
+                     /*
+                    if ( x == 0 ) {
+                        source[x].connect(wp).connect(context.destination);
+                    }
+                    else {
+                        source[x].connect(source[x-1]);
+                    }
+                    */
+    var context = new AudioContext();
+    await context.audioWorklet.addModule('worklet-processor.js');
+    const wp = new AudioWorkletNode(context, 'worklet-processor');
+    wp.connect(context.destination)
+</script>
+
+<script>
+  var context;
+  document.getElementById('btn_ctx').addEventListener('click', () => {
+      context = new AudioContext();
+      context.audioWorklet.addModule("worklet-processor.js").then(() => {
+	  var wp = new AudioWorkletNode(context, "worklet-processor");
+	  wp.connect(context.destination);
+      });
+  });
+</script>
+
+<script>
+const buffer1 = context.createBuffer(1, context.sampleRate * 21, context.sampleRate);
+var nowBuffering = buffer1.getChannelData(0);
+for (var i = 0; i < buffer1.length; i++){
+     nowBuffering[i] = pcm_view[pcm_buffer_cnt++];
+}
+
+const source1 = context.createBufferSource();
+source1.buffer = buffer1;
+source1.connect(wp).connect(context.destination);
+source1.start(0, 0, 21);                
+
+const buffer2 = context.createBuffer(1, context.sampleRate * 21, context.sampleRate);
+var nowBuffering = buffer2.getChannelData(0);
+for (var i = 0; i < buffer2.length; i++){
+    nowBuffering[i] = pcm_view[pcm_buffer_cnt++];
+}
+
+const source2 = context.createBufferSource();
+source2.buffer = buffer2;
+source2.connect(wp).connect(context.destination); 
+source2.start(21, 0, 21);
+</script>
+-->
