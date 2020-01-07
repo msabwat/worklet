@@ -7,3 +7,12 @@ This file needs to fit the webaudio format :
 ```
 
 The WebAudio graph (tested on a tot chrome build on macos), shows the AudioBufferSource is connected the way it should be.
+
+
+Bindings:
+
+
+```
+python3 ~/vlc/emscripten/tools/webidl_binder.py my_dummy.idl glue
+
+emcc test.cpp --bind --post-js glue.js --preload-file . -o out/test.html -s TOTAL_MEMORY=1GB ```

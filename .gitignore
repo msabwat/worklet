@@ -1,2 +1,8 @@
 recording/*.wav
 worklet.pcm
+out
+./bindings/out
+glue.cpp
+glue.js
+WebIDLGrammar.pkl
+parser.out
