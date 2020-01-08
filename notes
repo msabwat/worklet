@@ -16,3 +16,13 @@ Bindings:
 python3 ~/vlc/emscripten/tools/webidl_binder.py my_dummy.idl glue
 
 emcc test.cpp --bind --post-js glue.js --preload-file . -o out/test.html -s TOTAL_MEMORY=1GB ```
+
+
+Failed to bind all the calls, it works well with Asyncify:
+```
+emcc -O3 test.cpp --bind --profiling -s ASYNCIFY=1 -s 'ASYNCIFY_IMPORTS=["add_worklet_node"]'  --preload-file worklet-processor.js -o out/test.html -s TOTAL_MEMORY=1GB -std=c++11
+```
+
+With this, VLC can start the worklet on the first user interaction, the worklet will have a template code that will read from a Ring Buffer each 128 frames :
+VLC decoder thread will have to write continuously to the Ring buffer, in a dedicated thread.
+ 
